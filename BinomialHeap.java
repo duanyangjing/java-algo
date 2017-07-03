@@ -11,10 +11,10 @@ public class BinomialHeap {
 
 		public BinomialTreeNode(int key) {
 			this.key = key;
-			leftChild = null;
-			rightSib = null;
-			parent = null;
-			degree = 0;
+			this.leftChild = null;
+			this.rightSib = null;
+			this.parent = null;
+			this.degree = 0;
 		}
 
 		/**
@@ -43,9 +43,9 @@ public class BinomialHeap {
 		}
 
 		/**
-		 * connect two root list n1 and n2
-		 * @param n1, start of root list on the left
-		 * @param n2, start of root list on the right
+		 * connect two roots list n1 and n2
+		 * @param n1, start of roots list on the left
+		 * @param n2, start of roots list on the right
 		 */
 		private void connect(BinomialTreeNode n1, BinomialTreeNode n2) {
 			while (n1.rightSib != null) {
@@ -57,31 +57,32 @@ public class BinomialHeap {
 
 	}
 
-	BinomialTreeNode root;
+	// head of root list. Root list is ordered from low degree root to high degree root
+	BinomialTreeNode roots;
 	int size;
 
 	public BinomialHeap() {
-		this.root = null;
+		this.roots = null;
 		this.size = 0;
 	}
 
     /**
      * Constructor to initialize a binomial heap. It traverses all the right
      * sibling of node passed in to calculate size.
-     * @param root, binomialTreeNode as the head of the root list in the heap.
+     * @param roots, binomialTreeNode as the head of the roots list in the heap.
      */
-	public BinomialHeap(BinomialTreeNode root) {
-	    this.root = root;
+	public BinomialHeap(BinomialTreeNode roots) {
+	    this.roots = roots;
 	    int size = 0;
-	    while (root != null) {
-	        size += (int)Math.pow(2, (double)root.degree);
-	        root = root.rightSib;
+	    while (roots != null) {
+	        size += (int)Math.pow(2, (double)roots.degree);
+	        roots = roots.rightSib;
         }
         this.size = size;
     }
 
 	public boolean isEmpty() {
-		return root == null;
+		return roots == null;
 	}
 
 	public BinomialHeap insert(int key) {
@@ -92,9 +93,9 @@ public class BinomialHeap {
 
 	public int findMin() {
 		// TODO: might use exceptions instead
-		if (this.root == null) return -1;
+		if (this.roots == null) return -1;
 
-		BinomialTreeNode curr = root;
+		BinomialTreeNode curr = roots;
 		int min = Integer.MAX_VALUE;
 		while (curr != null) {
 		    if (curr.key < min) min = curr.key;
@@ -106,9 +107,9 @@ public class BinomialHeap {
 
 	public int extractMin() {
 		// TODO: might use exceptions instead
-		if (this.root == null) return -1;
+		if (this.roots == null) return -1;
 
-        BinomialTreeNode curr = root;
+        BinomialTreeNode curr = roots;
         int min = Integer.MAX_VALUE;
         BinomialTreeNode minNode = null;
         BinomialTreeNode prev = null;
@@ -129,7 +130,64 @@ public class BinomialHeap {
         return min;
 	}
 
+	/**
+	 * Helper function to union two binomial heap given the head of roots list
+	 * @param root1 head of roots list of first binomial heap
+	 * @param root2 head of roots list of second binomial heap
+	 * @return the new roots with root1 root2 union together similar to binary addition
+	 */
+	private BinomialTreeNode union(BinomialTreeNode root1, BinomialTreeNode root2) {
+		BinomialTreeNode n1 = root1;
+		BinomialTreeNode n2 = root2;
+		BinomialTreeNode dummy = new BinomialTreeNode(-1);
+		BinomialTreeNode curr = dummy;
+		BinomialTreeNode carry = null;
+		// will exit while loop when either n1 or n2 reaches its end
+		while (n1 != null && n2 != null) {
+			int deg1 = n1.degree;
+			int deg2 = n2.degree;
+			if (carry == null) {
+				if (deg1 == deg2) {
+					carry = n1.merge(n2);
+				} else if (deg1 < deg2) {
+					curr.rightSib = n1;
+					curr = curr.rightSib;
+				} else {
+					curr.rightSib = n2;
+					curr = curr.rightSib;
+				}
+			} else {
+				// if there are two Bk and a carry Bk, then merge any two of the three will work.
+				if (deg1 == deg2) {
+					curr.rightSib = carry;
+					carry = n1.merge(n2);
+				// only one Bk and a carry Bk, need to merge the two, no node at the current bit
+				} else if (deg1 < deg2) {
+					carry = n1.merge(carry);
+				} else {
+					carry = n2.merge(carry);
+				}
+			}
+
+			n1 = n1.rightSib;
+			n2 = n2.rightSib;
+		}
+
+		// TODO: haven't finish these loops
+		while (n1 != null) {
+
+		}
+
+		while (n2 != null) {
+
+		}
+
+		return dummy.rightSib;
+	}
+
 	public BinomialHeap union(BinomialHeap heap) {
+		BinomialTreeNode head1 = this.roots;
+		BinomialTreeNode head2 = heap.roots;
 		return null;
 	}
 
