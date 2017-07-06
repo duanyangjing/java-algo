@@ -122,9 +122,15 @@ public class BinomialHeap {
 
 		// now prev is the node before minNode
 		prev.rightSib = minNode.rightSib;
-        BinomialHeap minChildren = new BinomialHeap(minNode.leftChild);
-        // TODO: need to union the children heap with this one
 
+        // before putting minNode's children on root list, set their parents to null
+        curr = minNode.leftChild;
+        while (curr != null) {
+        	curr.parent = null;
+        	curr = curr.rightSib;
+		}
+		this.roots = union(minNode.leftChild, this.roots);
+		this.size--;
         return min;
 	}
 
@@ -135,6 +141,7 @@ public class BinomialHeap {
 	 * @return the new roots with root1 root2 union together similar to binary addition
 	 */
 	private BinomialTreeNode union(BinomialTreeNode root1, BinomialTreeNode root2) {
+		// TODO: This can be better implemented using recursion
 		BinomialTreeNode n1 = root1;
 		BinomialTreeNode n2 = root2;
 		BinomialTreeNode dummy = new BinomialTreeNode(-1);
