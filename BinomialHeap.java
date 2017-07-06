@@ -53,8 +53,6 @@ public class BinomialHeap {
 			}
 			n1.rightSib = n2;
 		}
-
-
 	}
 
 	// head of root list. Root list is ordered from low degree root to high degree root
@@ -173,29 +171,81 @@ public class BinomialHeap {
 			n2 = n2.rightSib;
 		}
 
-		// TODO: haven't finish these loops
+		// At this point if there is carry, then since one of the root list has reaches end, each of the rest addition
+		// will produce carry all through the end.
+		// If there is no carry, then each of the rest addition won't produce any carry.
 		while (n1 != null) {
-
+			if (carry == null) {
+				curr.rightSib = n1;
+				curr = curr.rightSib;
+			} else {
+				carry = n1.merge(carry);
+			}
+			n1 = n1.rightSib;
 		}
 
 		while (n2 != null) {
-
+			if (carry == null) {
+				curr.rightSib = n2;
+				curr = curr.rightSib;
+			} else {
+				carry = n2.merge(carry);
+			}
+			n2 = n2.rightSib;
 		}
+
+		curr.rightSib = carry;
 
 		return dummy.rightSib;
 	}
 
 	public BinomialHeap union(BinomialHeap heap) {
-		BinomialTreeNode head1 = this.roots;
-		BinomialTreeNode head2 = heap.roots;
-		return null;
+		return new BinomialHeap(union(this.roots, heap.roots));
 	}
 
-	public BinomialHeap decreaseKey(int key, int newKey) {
-		return null;
+	/**
+	 * Decrease key value for a node
+	 * @param node
+	 * @param newKey, new decreased key for the node, must be less than original key
+	 * @return new heap after performing decrease key
+	 */
+	public BinomialHeap decreaseKey(BinomialTreeNode node, int newKey) {
+		// TODO:might be better to throw exceptions
+		if (newKey > node.key) return this;
+		node.key = newKey;
+		while (node.parent != null && node.key < node.parent.key) {
+			BinomialTreeNode tempParent = node.parent;
+			BinomialTreeNode tempRight = node.rightSib;
+			BinomialTreeNode tempChild = node.leftChild;
+			int tempDeg = node.degree;
+
+			node.rightSib = node.parent.rightSib;
+			node.parent.rightSib = tempRight;
+
+			node.degree = node.parent.degree;
+			node.parent.degree = tempDeg;
+
+			node.leftChild.parent = node.parent;
+			tempParent.parent.leftChild = node;
+
+			node.parent = tempParent.parent;
+			tempParent.leftChild = tempChild;
+
+			node.leftChild = tempParent;
+			tempParent.parent = node;
+		}
+
+		return this;
 	}
 
-	public BinomialHeap delete(int key) {
-		return null;
+	/**
+	 * Delete a node from the heap
+	 * @param node, the node to be deleted
+	 * @return new heap after deletion
+	 */
+	public BinomialHeap delete(BinomialTreeNode node) {
+		this.decreaseKey(node, Integer.MIN_VALUE);
+		this.extractMin();
+		return this;
 	}
 }
